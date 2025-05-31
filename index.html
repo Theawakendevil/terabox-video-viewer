@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TeraBox Video Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+    h1 {
+      color: #007bff;
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      max-width: 600px;
+      font-size: 1rem;
+    }
+    .video-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 2rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 800px;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .thumb {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    .info {
+      margin-top: 1rem;
+    }
+    .download-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>TeraBox Video Fetcher</h1>
+  <input type="text" id="urlInput" placeholder="Paste TeraBox video URL here..." />
+  <button onclick="fetchTeraBoxData()">Fetch Video</button>
+
+  <div id="result" class="video-card" style="display: none;">
+    <img id="thumb" class="thumb" />
+    <div class="info">
+      <h2 id="fileName"></h2>
+      <p><strong>Size:</strong> <span id="size"></span></p>
+      <video id="videoPlayer" controls></video>
+      <a id="downloadLink" class="download-btn" target="_blank">Download Video</a>
+    </div>
+  </div>
+
+  <script>
+    async function fetchTeraBoxData() {
+      const url = document.getElementById('urlInput').value;
+      if (!url) return alert("Please paste a valid URL");
+
+      try {
+        const apiURL = `https://terabox.sg61x.workers.dev/?url=${encodeURIComponent(url)}`;
+        const response = await fetch(apiURL);
+        const json = await response.json();
+
+        if (json.status === 'success') {
+          const data = json.data.structure;
+          document.getElementById('result').style.display = 'block';
+          document.getElementById('thumb').src = data.thumb;
+          document.getElementById('fileName').textContent = data.file_name;
+          document.getElementById('size').textContent = data.size;
+          document.getElementById('videoPlayer').src = data.stream_url;
+          document.getElementById('downloadLink').href = data.direct_link;
+        } else {
+          alert("Failed to fetch data");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Error occurred while fetching data");
+      }
+    }
+  </script>
+
+</body>
+</html>
